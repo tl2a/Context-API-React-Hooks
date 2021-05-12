@@ -1,4 +1,4 @@
-import React, {useReducer, createContext} from 'react'
+import React, {useReducer, createContext, useEffect} from 'react'
 // import "regenerator-runtime/runtime.js";
 // import combineReducers from 'react-combine-reducers';
 import { titleReducer, titleState } from '../reducers/titleReducer';
@@ -25,10 +25,18 @@ const GlobalContextProvider = (props) => {
     const [state, dispatch] = useReducer(combineReducers({
         titles: titleReducer,
         books: bookReducer 
-      }), {
+      }), { //combined states
           titles: titleState,
           books: bookState
-      })
+      }, () => { // this third argument is an init funtion as to initial state at first time based on localstorage if available
+        const localData = localStorage.getItem('state');
+        return localData ? JSON.parse(localData) : [];
+      });
+
+    useEffect(() => {
+      localStorage.setItem('state', JSON.stringify(state));
+    }, [state]);
+
     return (
         <globalContext.Provider value={{state, dispatch}}>
             {props.children}
